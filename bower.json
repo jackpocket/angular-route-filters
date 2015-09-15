@@ -21,5 +21,8 @@
     "angular-mocks": "~1.4.0",
     "html5-boilerplate": "~5.2.0",
     "bootstrap": "~3.3.5"
+  },
+  "devDependencies": {
+    "angular-ui-router": "ui-router#~0.2.15"
   }
 }

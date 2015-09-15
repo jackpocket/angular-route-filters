@@ -24,7 +24,7 @@
     <link rel="stylesheet" href="app.css">
     <script src="vendor/html5-boilerplate/dist/js/vendor/modernizr-2.8.3.min.js"></script>
 
-    <script src="vendor/bootstrap/dist/js/bootstrap.js"></script>
+    <!--<script src="vendor/bootstrap/dist/js/bootstrap.js"></script>-->
 </head>
 <body>
 
@@ -36,164 +36,27 @@
 
 <br/>
 
-<div ng-controller="myFormCtrl" class="container-fluid">
+<div class="container-fluid" style="height: 500px">
 
-    <div class="row">
+    <div ui-view class="container slide" style="padding-top: 80px;"></div>
 
-        <div class="col-lg-4">
-
-            <!--<form>-->
-            <!--<div class="form-group">-->
-            <!--<label for="exampleInputEmail1">Phone number: (999)-->
-            <!--999-9999</label>-->
-
-
-            <!--<input type="email"-->
-            <!--input-formatter="(999) 999-9999"-->
-            <!--ng-model="user.phone"-->
-            <!--class="form-control"-->
-            <!--id="exampleInputEmail1"-->
-            <!--placeholder="Email">-->
-            <!--</div>-->
-            <!--<div class="form-group">-->
-            <!--<label for="exampleInputPassword1">Password</label>-->
-            <!--<input type="password" class="form-control"-->
-            <!--id="exampleInputPassword1" placeholder="Password">-->
-            <!--</div>-->
-            <!--<div class="form-group">-->
-            <!--<label for="exampleInputFile">File input</label>-->
-            <!--<input type="file" id="exampleInputFile">-->
-
-            <!--<p class="help-block">Example block-level help text here.</p>-->
-            <!--</div>-->
-            <!--<div class="checkbox">-->
-            <!--<label>-->
-            <!--<input type="checkbox"> Check me out-->
-            <!--</label>-->
-            <!--</div>-->
-            <!--<button type="submit" class="btn btn-default">Submit</button>-->
-            <!--</form>-->
-
-            <!--</div>-->
-
-
-            <form novalidate class="simple-form">
-                <div class="form-group">
-                    <label>Phone number</label>
-                    <input type="text"
-                           class="form-control"
-                           input-formatter="(999) 999-9999"
-                           ng-model="user.phone"/>
-                </div>
-
-                <div class="form-group">
-                    <label>Credit Card</label>
-                    <input type="text"
-                           class="form-control"
-                           input-formatter="9999-9999-9999-9999"
-                           ng-model="user.credit_card"/>
-                </div>
-
-                <div class="form-group">
-                    <label>Routing number</label>
-                    <input type="text"
-                           class="form-control"
-                           input-formatter="|:999999999|:"
-                           ng-model="user.routing_number"/>
-                </div>
-
-                <div class="form-group">
-                    <label>Zip Code</label>
-                    <input type="text"
-                           class="form-control"
-                           input-formatter="99999-9999"
-                           ng-model="user.zip_code"/>
-                </div>
-
-                <div class="form-group">
-                    <label>Letters Only</label>
-                    <input type="text"
-                           class="form-control"
-                           input-formatter="aaaa aaaa"
-                           ng-model="user.letters"/>
-                </div>
-
-                <div class="form-group">
-                    <label>Letters And Numbers like: aaaa 9999</label>
-                    <input type="text"
-                           class="form-control"
-                           input-formatter="aaaa 9999"
-                           ng-model="user.letters_and_numbers"/>
-                </div>
-
-                <div class="form-group">
-                    <label>Letters Or Numbers: *****</label>
-                    <input type="text"
-                           class="form-control"
-                           input-formatter="*****"
-                           ng-model="user.letters_or_number"/>
-                </div>
-
-
-                <jp-inline-input>
-
-                    <label class="item item-input expandable"
-                           contract-when="{{ card.number.length > 15 }}"
-                           ng-class="{error: card.number.length > 15 &&
-                        validationErrors.number !== undefined}">
-
-                        <i class="placeholder-icon jp-icon-card"></i>
-
-                    <span class="input show-when-contracted">
-                        {{ card.number }}
-                    </span>
-
-                        <input name="number" type="tel"
-                               class="show-when-expanded"
-                               placeholder="Credit Card"
-                               ng-model="card.number"
-                               input-formatter="9999-9999-9999-9999">
-                    </label>
-
-
-
-
-                    <jp-input-item name="expiration_month" type="tel"
-                                   placeholder="MM/YY"
-                                   ng-model="card.expiration_month"
-                                   input-formatter="99/99">
-                    </jp-input-item>
-
-                    <jp-input-item name="cvv" placeholder="CVV"
-                                   type="tel"
-                                   ng-model="card.cvv"
-                                   format="999">
-                    </jp-input-item>
-
-                    <jp-input-item name="billing_zip_code" placeholder="Zip"
-                                   type="tel"
-                                   ng-model="card.zip_code"
-                                   format="99999">
-                    </jp-input-item>
-
-                </jp-inline-input>
-            </form>
-
-        </div>
-
-        <div class="col-lg-4">
-            <label>Raw</label>
-            <pre>Model = {{user | json}}</pre>
-        </div>
-
-    </div>
 </div>
+
+    <pre>
+      <!-- Here's some values to keep an eye on in the sample in order to understand $state and $stateParams -->
+      $state = {{$state.current.name}}
+      $stateParams = {{$stateParams}}
+      $state full url = {{ $state.$current.url.source }}
+      <!-- $state.$current is not a public api, we are using it to
+           display the full url for learning purposes-->
+    </pre>
+
 
 <!-- In production use:
 <script src="//ajax.googleapis.com/ajax/libs/angularjs/x.x.x/angular.min.js"></script>
 -->
 <script src="vendor/angular/angular.js"></script>
-<script src="vendor/angular-route/angular-route.js"></script>
+<script src="vendor/angular-ui-router/release/angular-ui-router.js"></script>
 <script src="build/index.js"></script>
 <script src="app.js"></script>
 </body>
