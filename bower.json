@@ -1,0 +1,25 @@
+{
+  "name": "angular-route-filters",
+  "version": "0.0.1",
+  "homepage": "https://github.com/GabrielCTroia/angular-route-filters",
+  "authors": [
+    "gabrielcatalin <catalin.troia@gmail.com>"
+  ],
+  "description": "A simple API for applying filters to your routes",
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "angular": "~1.4.0",
+    "angular-route": "~1.4.0",
+    "angular-loader": "~1.4.0",
+    "angular-mocks": "~1.4.0",
+    "html5-boilerplate": "~5.2.0",
+    "bootstrap": "~3.3.5"
+  }
+}

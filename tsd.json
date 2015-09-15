@@ -1,0 +1,27 @@
+{
+  "version": "v4",
+  "repo": "Asana/DefinitelyTyped",
+  "ref": "master",
+  "path": "typings",
+  "bundle": "typings/tsd.d.ts",
+  "installed": {
+    "chai/chai.d.ts": {
+      "commit": "66d8808c98856feae7d5a2d5acfc955110fb126d"
+    },
+    "mocha/mocha.d.ts": {
+      "commit": "66d8808c98856feae7d5a2d5acfc955110fb126d"
+    },
+    "node/node.d.ts": {
+      "commit": "66d8808c98856feae7d5a2d5acfc955110fb126d"
+    },
+    "sinon/sinon.d.ts": {
+      "commit": "66d8808c98856feae7d5a2d5acfc955110fb126d"
+    },
+    "angularjs/angular.d.ts": {
+      "commit": "8e614160f9ddea13d7b78607df39ac931e233090"
+    },
+    "promises-a-plus/promises-a-plus.d.ts": {
+      "commit": "f23cd55e319a0f67362ca0dbc4cf3e2ec1339f4e"
+    }
+  }
+}
