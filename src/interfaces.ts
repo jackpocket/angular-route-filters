@@ -4,6 +4,14 @@
 
 module RouteFilters {
 
+  export interface IRouteDataStructure {
+    name: string;
+    params?: {[name: string]: boolean}
+    data?: {
+      beforeFilters?: [string]
+    }
+  }
+
   export interface IBeforeFilter {
     condition(): boolean|PromisesAPlus.Thenable<any>|any;
     resolve(): PromisesAPlus.Thenable<void>;

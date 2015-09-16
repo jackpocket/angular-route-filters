@@ -9,20 +9,44 @@ module RouteFilters {
 
     private _currentlyResolving: Basic.IHashMap<IBeforeFilter> = {};
 
-    constructor(private _$injector, private _$rootScope) {}
+    private _preventedRoutes: Basic.IHashMap<IRouteDataStructure> = {};
+
+    constructor(private _$injector, private _$rootScope, private _$state) {}
 
     public authorize(route, event) {
-      var beforeFilterNames = (route.data || {}).beforeFilters || [];
+      if (this._isPrevented(route)) {
+        console.info(`Authorize Prevented for "${route.name}"`);
+        return;
+      }
+
+      var beforeFilterNames = Route._getBeforeFilterNamesFrom(route);
 
       if (beforeFilterNames.length > 0) {
         console.info('Authorizing the BeforeFilters...', beforeFilterNames.join(','));
 
-        event.block();
+        // event.block();
+        event.preventDefault();
+        this._preventedRoutes[route.name] = route;
 
         this.applyBeforeFilters(beforeFilterNames)
-            .then(() => event.continue());
+            .then(() => {
+              console.log(`Authorize: Continuing to "${route.name}"`);
+              event.__authorized = true;
+
+              this._$state.transitionTo(route.name, route.params);
+
+              delete this._preventedRoutes[route.name];
+            });
       }
 
+    }
+
+    private static _getBeforeFilterNamesFrom(route): [string] {
+      return (route.data || {}).beforeFilters || [];
+    }
+
+    private _isPrevented(route: IRouteDataStructure): boolean {
+      return this._preventedRoutes[route.name];
     }
 
     /**
@@ -113,10 +137,6 @@ module RouteFilters {
           this._$injector.invoke(toProvide),
           (cb) => this._$rootScope.$on('$stateChangeStart',
               (event, toState, toParams) => {
-
-                console.log('this chaning the state');
-
-
                 cb({
                   _blocked: {},
                   block:    function () {
@@ -128,7 +148,6 @@ module RouteFilters {
                     }
                   },
                   continue: function () {
-                    console.log('continuing', this._blocked)
                     if (typeof this._blocked.name === 'string') {
 
                       this._$rootScope.$state

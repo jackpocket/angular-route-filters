@@ -32,8 +32,20 @@ angular.module('myApp', [
     .controller('HomeGuestCtrl', ['$scope', function ($scope) {
       // nothing interesting happening here yet
     }])
-    .controller('HomeUserCtrl', ['$scope', function ($scope) {
-      // nothing interesting happening here yet
+    .controller('HomeUserCtrl', [
+      '$scope',
+      '$rootScope',
+      '$state',
+      function ($scope, $rootScope, $state) {
+      $scope.logout = function () {
+        // simulate a real asyn login
+        setTimeout(function () {
+          $rootScope.user = null;
+
+          // Note, that is going home - to the guest user.
+          $state.go('home');
+        }, 100);
+      };
     }])
     .controller('LoginCtrl', [
       '$scope',
@@ -43,16 +55,13 @@ angular.module('myApp', [
         $scope.login = function () {
           // simulate a real asyn login
           setTimeout(function () {
-            console.log('loging in');
-
-
             $rootScope.user = {
               name: 'Gabriel Troia'
             };
 
-            // Note, that is going home - to the guest user.
+            // Note, that is NOT going 'home', but to to the guest user.
             $state.go('home');
-          }, 2000);
+          }, 100);
         };
         // nothing interesting happening here yet
       }])
@@ -121,41 +130,4 @@ angular.module('myApp', [
         }
       ]);
 
-    }])
-
-  // Set up the Authorization Bindings
-    .run([
-      '$rootScope',
-      'route',
-      function ($rootScope, route) {
-
-        $rootScope.$on('$stateChangeStart', function (event, toState, toParams) {
-          route.authorize(toState, {
-            _blocked: {},
-            block   : function () {
-              event.preventDefault();
-
-              this._blocked = {
-                name  : toState,
-                params: toParams
-              }
-            },
-            continue: function () {
-              if (typeof this._blocked.name === 'string') {
-                console.log('transitioning to ', this._blocked)
-
-                $rootScope.$state
-                    .transitionTo(this._blocked.name, this._blocked.params);
-
-                this._blocked = {};
-              }
-            }
-          });
-
-          // clean the args? lie so: event = null; toState: null, toParams: null
-          // because this will keep it alive, thus setting a good env for
-          // memory leaking
-        });
-
-      }]);
-
+    }]);
