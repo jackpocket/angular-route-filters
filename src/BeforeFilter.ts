@@ -18,7 +18,7 @@ module RouteFilters {
 
     constructor(private _name,
                 private _definition: IBeforeFilterDefinition,
-                private _state) {
+                private _onRefreshFn) {
 
       if (!_definition) {
         throw new Error('Route.beforeFilter: ' +
@@ -50,6 +50,13 @@ module RouteFilters {
      */
     public condition(): PromisesAPlus.Thenable<void> {
       var conditionOutput = this._definition.condition(this._filterScope);
+
+      if (typeof conditionOutput === 'undefined'
+          || typeof conditionOutput === 'null') {
+        throw new Error('The condition must return Boolean or ' +
+            'Promise.Thenable<boolean>. Instead it returned ' +
+            typeof conditionOutput);
+      }
 
       if (typeof conditionOutput === 'boolean') {
         console.info(`BeforeFilter - '${this._name}' condition is SYNC!`);
@@ -121,8 +128,8 @@ module RouteFilters {
       // try to apply the rest of the filters of the old route.
       return this._currentlyResolvingPromise = new global.Promise((resolve) => {
 
-        var destroyEventChangeListener = this._state
-            .beforeChange((nextStateChangeEvent) => {
+        var destroyEventChangeListener =
+            this._onRefreshFn((nextStateChangeEvent) => {
               // Wait for the condition to be reverified.
               // There is a chance the previous state just solved the condition
               // In which case, the beforeFilter must resolve 1st.

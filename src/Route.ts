@@ -9,7 +9,7 @@ module RouteFilters {
 
     private _currentlyResolving: Basic.IHashMap<IBeforeFilter> = {};
 
-    constructor(private _$injector, private _state) {}
+    constructor(private _$injector, private _$rootScope) {}
 
     public authorize(route, event) {
       var beforeFilterNames = (route.data || {}).beforeFilters || [];
@@ -109,8 +109,97 @@ module RouteFilters {
 
     public beforeFilter(name: string, toProvide: [string, () => any]) {
       this._beforeFilters[name] = new BeforeFilter(
-          name, this._$injector.invoke(toProvide), this._state);
+          name,
+          this._$injector.invoke(toProvide),
+          (cb) => this._$rootScope.$on('$stateChangeStart',
+              (event, toState, toParams) => {
+
+                console.log('this chaning the state');
+
+
+                cb({
+                  _blocked: {},
+                  block:    function () {
+                    event.preventDefault();
+
+                    this._blocked = {
+                      name:   toState,
+                      params: toParams
+                    }
+                  },
+                  continue: function () {
+                    console.log('continuing', this._blocked)
+                    if (typeof this._blocked.name === 'string') {
+
+                      this._$rootScope.$state
+                          .transitionTo(this._blocked.name, this._blocked.params);
+
+                      this._blocked = {};
+                    }
+                  }
+                });
+              }));
     }
+
+
+    //private _enhanceStartChangeEvent(event, toStateName, toParams) {
+    //
+    //  /**
+    //   * Calls the preventDefault on the same event
+    //   * in order to block the State Change,
+    //   * for a code block to be executed before the State Changes
+    //   *
+    //   * When the code block succeeds the event.continue should be called
+    //   * in order to move forward
+    //   */
+    //  event.block = function (fn) {
+    //    event.blockedState = {
+    //      name:   toStateName,
+    //      params: toParams
+    //    };
+    //
+    //    event.preventDefault();
+    //
+    //    // Continue automatically if the callback function exists and returns
+    //    // true To be used in an sync mode
+    //    if (fn && fn()) {
+    //      event.continue();
+    //    }
+    //  };
+    //
+    //  /**
+    //   * Checks if there is a blocked event(state)
+    //   *
+    //   * @returns {boolean}
+    //   */
+    //  event.isBlocked = function () {
+    //    return !!event.blockedState;
+    //  };
+    //
+    //  /**
+    //   * If there was an event.block() call before,
+    //   * it continues from where it left off by
+    //   * transitioning to the cached blockedState
+    //   *
+    //   * Should be called after the code block is ready to move forward
+    //   *
+    //   * !Note: Make sure the condition that triggered the event.block()
+    //   *  is not satisfied anymore, otherwise it will fall in event.block()
+    //   * again and you will get an infinite loop!
+    //   */
+    //  event.continue = function () {
+    //    if (!event.blockedState) {
+    //      return;
+    //    }
+    //
+    //    var toState = event.blockedState;
+    //    event.blockedState = null;
+    //
+    //    // eventStateChangeContinued = true;
+    //
+    //    this._state.transitionTo(toState.name, toState.params);
+    //  }
+    //}
 
 
     public getBeforeFilterByName(name: string): IBeforeFilter {

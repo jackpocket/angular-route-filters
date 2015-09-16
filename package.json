@@ -67,9 +67,9 @@
     "update": "git fetch && git merge origin master && npm run setup",
     "build:js": "tsc src/index.ts --out build/index.js",
     "build": "npm run build:js",
-    "build:watch": "watch 'npm run build' .",
+    "build:watch": "tsc src/index.ts --out build/index.js --watch ",
     "pretest": "npm install",
-    "serve": "http-server ./sample -a localhost -p 7070 -c-1",
+    "serve": "http-server ./sample -a localhost -p 7777 -c-1",
     "test": "karma start karma.conf.js",
     "test-single-run": "karma start karma.conf.js  --single-run",
     "start": "parallelshell 'npm run serve' 'npm run build:watch'"
