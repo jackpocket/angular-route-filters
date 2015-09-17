@@ -72,8 +72,7 @@ module RouteFilters {
           }
         });
       }
-      else if (conditionOutput.hasOwnProperty('then')
-          && typeof conditionOutput.then === 'function') {
+      else if (typeof conditionOutput.then === 'function') {
         console.info(`BeforeFilter - '${this._name}' condition is ASYNC!`);
 
         return conditionOutput
@@ -146,6 +145,7 @@ module RouteFilters {
 
                     this._currentlyResolvingPromise = null;
                     // Resolve the Promise!
+                    nextStateChangeEvent.destroy();
                     resolve();
                   }, () => {
                     // CANNOT REJECT HERE, B/C ONCE REJECTED THE RESOLVE
@@ -157,6 +157,13 @@ module RouteFilters {
                   });
             });
       });
+    }
+
+    stopResolutionProcess() {
+      // need a way to destroy the current resolution process
+      // thats because, when a user goes back, and starts again the process
+      // 2 process are now running, which means to state change listeners
+      // are invoked and so on.
     }
   }
 }

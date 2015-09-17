@@ -1,5 +1,11 @@
 'use strict';
 
+var oldLogInfo = console.info;
+console.info = function() {
+  //oldLogInfo.apply(oldLogInfo, arguments);
+  console.trace.apply(console, arguments);
+};
+
 // Declare app level module which depends on views, and components
 angular.module('myApp', [
   'ui.router',
@@ -10,6 +16,23 @@ angular.module('myApp', [
       '$state',
       '$stateParams',
       function ($rootScope, $state, $stateParams) {
+
+        $rootScope.history = [];
+
+        $rootScope.goBack = function () {
+          var prev = $rootScope.history.pop();
+
+          if (prev) {
+            console.debug('going back to', prev);
+            $state.go(prev);
+          }
+        };
+
+        $rootScope.$on('$stateChangeSuccess', function (event, toState, toParams, fromState) {
+          if (fromState.name) {
+            $rootScope.history.push(fromState.name);
+          }
+        });
 
         $rootScope.user = null;
 
@@ -37,16 +60,16 @@ angular.module('myApp', [
       '$rootScope',
       '$state',
       function ($scope, $rootScope, $state) {
-      $scope.logout = function () {
-        // simulate a real asyn login
-        setTimeout(function () {
-          $rootScope.user = null;
+        $scope.logout = function () {
+          // simulate a real asyn login
+          setTimeout(function () {
+            $rootScope.user = null;
 
-          // Note, that is going home - to the guest user.
-          $state.go('home');
-        }, 100);
-      };
-    }])
+            // Note, that is going home - to the guest user.
+            $state.go('home-guest');
+          }, 100);
+        };
+      }])
     .controller('LoginCtrl', [
       '$scope',
       '$rootScope',
@@ -60,7 +83,7 @@ angular.module('myApp', [
             };
 
             // Note, that is NOT going 'home', but to to the guest user.
-            $state.go('home');
+            $state.go('home-guest');
           }, 100);
         };
         // nothing interesting happening here yet
@@ -85,11 +108,11 @@ angular.module('myApp', [
         //    .when('/user/:id', '/contacts/:id')
 
         // If the url is ever invalid, e.g. '/asdf', then redirect to '/' aka the home state
-        $urlRouterProvider.otherwise('/home');
+        $urlRouterProvider.otherwise('/home/guest');
 
         $stateProvider
-            .state('home', {
-              url        : '/home',
+            .state('home-guest', {
+              url        : '/home/guest',
               controller : 'HomeGuestCtrl',
               templateUrl: './views/home-guest.html',
               resolve    : {}
@@ -105,10 +128,20 @@ angular.module('myApp', [
                 ]
               }
             })
-            .state('login', {
-              url        : '/login',
+            .state('login-step1', {
+              url        : '/login-step1',
+              templateUrl: './views/login-step1.html',
+              resolve    : {}
+            })
+            .state('login-step2', {
+              url        : '/login-step2',
+              templateUrl: './views/login-step2.html',
+              resolve    : {}
+            })
+            .state('login-step3', {
+              url        : '/login-step3',
               controller : 'LoginCtrl',
-              templateUrl: './views/login.html',
+              templateUrl: './views/login-step3.html',
               resolve    : {}
             });
       }])
@@ -121,13 +154,36 @@ angular.module('myApp', [
         function ($rootScope, $state) {
           return {
             condition: function () {
-              return !!($rootScope.user && $rootScope.user.hasOwnProperty('name'));
+              return new Promise(function (resolve, reject) {
+                setTimeout(function() {
+                  if (!!($rootScope.user && $rootScope.user.hasOwnProperty('name'))) {
+                    resolve()
+                  } else {
+                    reject();
+                  }
+                }, 1000);
+              })
             },
             resolve  : function () {
-              $state.go('login');
+              $state.go('login-step1');
             }
           }
         }
       ]);
+
+      //route.beforeFilter('user:verified', [
+      //  '$rootScope',
+      //  '$state',
+      //  function ($rootScope, $state) {
+      //    return {
+      //      condition: function () {
+      //        return !!($rootScope.user && $rootScope.user.hasOwnProperty('name'));
+      //      },
+      //      resolve  : function () {
+      //        $state.go('login');
+      //      }
+      //    }
+      //  }
+      //]);
 
     }]);

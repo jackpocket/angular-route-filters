@@ -1,129 +1,111 @@
 /// <reference path="./basic.d.ts" />
 'use strict';
 
+
 module RouteFilters {
+
+  interface IHistory {
+    target: IRouteDataStructure,
+    stack: [IRouteDataStructure];
+  }
 
   export class Route {
 
     private _beforeFilters: Basic.IHashMap<IBeforeFilter> = {};
 
-    private _currentlyResolving: Basic.IHashMap<IBeforeFilter> = {};
+    //private _currentlyResolving: Basic.IHashMap<IBeforeFilter> = {};
 
     private _preventedRoutes: Basic.IHashMap<IRouteDataStructure> = {};
 
-    constructor(private _$injector, private _$rootScope, private _$state) {}
+    private _authorizationProcesses = {};
+
+    private _temporaryAuthorizations = {};
+
+    constructor(private _$injector, private _$rootScope, private _$state) {
+      // just for debugging
+      _$rootScope.preventedRoutes = this._preventedRoutes;
+      _$rootScope.routeFilterHistories = this._resolutionHistories;
+    }
 
     public authorize(route, event) {
-      if (this._isPrevented(route)) {
-        console.info(`Authorize Prevented for "${route.name}"`);
-        return;
-      }
-
-      var beforeFilterNames = Route._getBeforeFilterNamesFrom(route);
-
-      if (beforeFilterNames.length > 0) {
-        console.info('Authorizing the BeforeFilters...', beforeFilterNames.join(','));
-
-        // event.block();
+      if (this._isTarget(route) && !this._hasOneTimeAuthorization(route)) {
         event.preventDefault();
-        this._preventedRoutes[route.name] = route;
 
-        this.applyBeforeFilters(beforeFilterNames)
-            .then(() => {
-              console.log(`Authorize: Continuing to "${route.name}"`);
-              event.__authorized = true;
+        this._isAuthorized(route)
+            .then((acc) => {
+              console.log('is authorized', acc);
+
+              this._offerOneTimeAuthorization(route);
 
               this._$state.transitionTo(route.name, route.params);
 
-              delete this._preventedRoutes[route.name];
+              this._destroyAuthorizationProcessFor(route);
+            }, (e) => {
+              console.warn('not authorized', e);
+
+
+              this._createAuthorizationProcessFor(route)
+                  .authorize()
+                  .then(() => {
+                    this._$state.transitionTo(route.name, route.params);
+                  });
             });
       }
 
+    }
+
+    private _createAuthorizationProcessFor(target: IRouteDataStructure) {
+      this._authorizationProcesses[target.name] =
+          new AuthorizationProcess(this._getBeforeFiltersFrom(target));
+
+      return this._authorizationProcesses[target.name];
+    }
+
+    private _destroyAuthorizationProcessFor(target: IRouteDataStructure): void {
+      if (this._authorizationProcesses[target.name]) {
+        delete this._authorizationProcesses[target.name];
+      }
+    }
+
+    private _hasOneTimeAuthorization(route) {
+      var val = !!this._temporaryAuthorizations[route.name];
+      delete this._temporaryAuthorizations[route.name];
+      return val;
+    }
+
+    private _offerOneTimeAuthorization(route) {
+      this._temporaryAuthorizations[route.name] = true;
+    }
+
+    private _isTarget(route) {
+      return Route._getBeforeFilterNamesFrom(route).length > 0;
+    }
+
+
+    private _isAuthorized(route): PromisesAPlus.Thenable<boolean> {
+      var conditions = Array.prototype.map.call(this._getBeforeFiltersFrom(route), (filter) => {
+        return filter.condition();
+      });
+
+      return global.Promise.all(conditions);
+    }
+
+    private _getBeforeFiltersFrom(route: IRouteDataStructure) {
+      return Array.prototype.map.call(Route._getBeforeFilterNamesFrom(route),
+          (n) => this.getBeforeFilterByName(n));
     }
 
     private static _getBeforeFilterNamesFrom(route): [string] {
       return (route.data || {}).beforeFilters || [];
     }
 
-    private _isPrevented(route: IRouteDataStructure): boolean {
-      return this._preventedRoutes[route.name];
+    private _hasHistory(route) {
+      return this._resolutionHistories.hasOwnProperty(route.name)
+          && this._resolutionHistories[route.name].length() > 1;
     }
 
-    /**
-     * Apply the Given before filters
-     * If any of the filter condition fails, the resolution for the given
-     *  beforeFilter will be called, and once resolved the method will
-     * recursively be called again with the rest of the unevaluated
-     * beforeFilters.
-     *
-     * @param names
-     * @returns {IPromise<TResult>|IPromise<any>|any}
-     */
-    public applyBeforeFilters(names: Array<string>) {
-      console.info('Applying the BeforeFilters...', names.join(','));
-
-      // If the names are empty resolve right away!
-      if (names.length === 0) {
-        return new global.Promise((resolve) => {
-          resolve();
-        });
-      }
-
-      // TODO: Refactor this!
-      // If there there is a currently resolving beforeFilter in the given list
-      // than jump right on that and resolve it!
-      // When done, call itself to continue with the rest of them!
-      for (var i = 0; i < names.length; i++) {
-        if (this._isCurrentlyResolving(names[i])) {
-          console.warn(`BeforeFilter - '${names[i]}' is currently ` +
-              `resolving, but an attempt to be reapplied has been made!
-            This could happen due to a conflict in the resolution flow,
-            or the User went back without resolving, and retried to enter the
-            unauthorized state!`);
-
-          return ((name: string, restOfNames: Array<string>) => {
-            console.warn(`Resolving BeforeFilter - ${names[i]}...`);
-
-            return this.getBeforeFilterByName(name)
-                .resolve()
-                .then(() => {
-                  delete this._currentlyResolving[name];
-
-                  return this.applyBeforeFilters(restOfNames);
-                });
-          })(names[i], names.slice(i + 1));
-        }
-      }
-
-      return global.Promise
-          .each(names, (n: string) => this.getBeforeFilterByName(n).condition())
-          .catch((beforeFilterOrError) => {
-            if (typeof beforeFilterOrError.resolve === 'function') {
-
-              var name = beforeFilterOrError.getName();
-
-              // Save the currently resolving beforeFilter
-              this._currentlyResolving[name] = beforeFilterOrError;
-
-              return beforeFilterOrError.resolve()
-                  .then(() => {
-                    delete this._currentlyResolving[name];
-
-                    var currentFilterIndex =
-                        names.indexOf(beforeFilterOrError.getName());
-
-                    var restOfNames = names.slice(currentFilterIndex + 1);
-
-                    // Recursively Async check the rest of the conditions
-                    return this.applyBeforeFilters(<[string]>restOfNames);
-                  });
-            }
-
-            // reject any other error!
-            return new global.Promise((resolve, reject) => {
-              reject(beforeFilterOrError);
-            });
-          });
+    private _isPrevented(route: IRouteDataStructure): boolean {
+      return this._preventedRoutes[route.name];
     }
 
     private _isCurrentlyResolving(name) {
@@ -132,94 +114,49 @@ module RouteFilters {
 
 
     public beforeFilter(name: string, toProvide: [string, () => any]) {
+      var self = this;
+
       this._beforeFilters[name] = new BeforeFilter(
           name,
           this._$injector.invoke(toProvide),
           (cb) => this._$rootScope.$on('$stateChangeStart',
               (event, toState, toParams) => {
+
+                if (this._isPrevented(toState)) {
+                  console.info(`Authorize Prevented for in CB"${toState.name}"`);
+                  return;
+                }
+
                 cb({
                   _blocked: {},
                   block:    function () {
+                    console.log('BeforeFilter event blocked CB', this._blocked);
+
                     event.preventDefault();
+                    self._preventedRoutes[toState.name] = toState;
 
                     this._blocked = {
-                      name:   toState,
+                      name:   toState.name,
                       params: toParams
                     }
                   },
                   continue: function () {
-                    if (typeof this._blocked.name === 'string') {
+                    console.log('BeforeFilter event continued CB', this._blocked);
+                    if (this._blocked.name) {
 
-                      this._$rootScope.$state
+                      self._$rootScope.$state
                           .transitionTo(this._blocked.name, this._blocked.params);
 
+                      this.destroy();
                       this._blocked = {};
                     }
+                  },
+                  destroy:  function () {
+                    delete self._preventedRoutes[this._blocked.name];
                   }
                 });
               }));
     }
-
-
-    //private _enhanceStartChangeEvent(event, toStateName, toParams) {
-    //
-    //  /**
-    //   * Calls the preventDefault on the same event
-    //   * in order to block the State Change,
-    //   * for a code block to be executed before the State Changes
-    //   *
-    //   * When the code block succeeds the event.continue should be called
-    //   * in order to move forward
-    //   */
-    //  event.block = function (fn) {
-    //    event.blockedState = {
-    //      name:   toStateName,
-    //      params: toParams
-    //    };
-    //
-    //    event.preventDefault();
-    //
-    //    // Continue automatically if the callback function exists and returns
-    //    // true To be used in an sync mode
-    //    if (fn && fn()) {
-    //      event.continue();
-    //    }
-    //  };
-    //
-    //  /**
-    //   * Checks if there is a blocked event(state)
-    //   *
-    //   * @returns {boolean}
-    //   */
-    //  event.isBlocked = function () {
-    //    return !!event.blockedState;
-    //  };
-    //
-    //  /**
-    //   * If there was an event.block() call before,
-    //   * it continues from where it left off by
-    //   * transitioning to the cached blockedState
-    //   *
-    //   * Should be called after the code block is ready to move forward
-    //   *
-    //   * !Note: Make sure the condition that triggered the event.block()
-    //   *  is not satisfied anymore, otherwise it will fall in event.block()
-    //   * again and you will get an infinite loop!
-    //   */
-    //  event.continue = function () {
-    //    if (!event.blockedState) {
-    //      return;
-    //    }
-    //
-    //    var toState = event.blockedState;
-    //    event.blockedState = null;
-    //
-    //    // eventStateChangeContinued = true;
-    //
-    //    this._state.transitionTo(toState.name, toState.params);
-    //  }
-    //}
-
 
     public getBeforeFilterByName(name: string): IBeforeFilter {
       if (this._beforeFilters[name]) {
@@ -230,6 +167,20 @@ module RouteFilters {
           `A BeforeFilter with the name "${name}" doesn't exist!`);
     }
 
+
+    public trackHistoryFor(target: IRouteDataStructure, root: IRouteDataStructure) {
+      this._resolutionHistories[target.name] = new RouteHistory(root);
+
+      this._resolutionHistoriesDestroyers[target.name] =
+          this._$rootScope.$on('$stateChangeSuccess', (event, toState) => {
+            this._resolutionHistories[target.name].push(toState);
+          });
+    }
+
+    public destroyHistoryFor(target) {
+      delete this._resolutionHistories[target.name];
+      this._resolutionHistoriesDestroyers[target.name]();
+    }
 
     // I think there is a need for AfterFilters as well
     // They will be the ones that catch speicific errors during the current oute

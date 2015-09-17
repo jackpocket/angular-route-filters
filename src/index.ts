@@ -1,5 +1,7 @@
 /// <reference path="./BeforeFilter" />
 /// <reference path="./Route" />
+/// <reference path="./History" />
+/// <reference path="./AuthorizationProcess" />
 /// <reference path="./interfaces" />
 
 var global: any = window;
@@ -19,7 +21,11 @@ angular.module('routeFilters', [
         // make sure this happens only if there are beforeFilters binded.
 
         // Before Filters
-        $rootScope.$on('$stateChangeStart', function (event, toState, toParams) {
+        $rootScope.$on('$stateChangeStart', function (event, toState, toParams, fromState) {
+          //console.log('----------- state change attempt to:', toState.name);
+          //console.log('event prevented default', event.defaultPrevented);
+          //console.log('event', event);
+          //console.log('');
           route.authorize(toState, event);
 
           //route.authorize(toState, {
