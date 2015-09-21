@@ -1,6 +1,5 @@
 /// <reference path="./BeforeFilter" />
 /// <reference path="./Route" />
-/// <reference path="./History" />
 /// <reference path="./AuthorizationProcess" />
 /// <reference path="./interfaces" />
 

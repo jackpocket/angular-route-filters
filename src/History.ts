@@ -7,9 +7,10 @@ module RouteFilters {
 
     // root - 1st in the stack
     // current - last in the stack
-    private _stack: [IRouteDataStructure] = [];
+    private _stack: [IRouteDataStructure];
 
     constructor(root: IRouteDataStructure) {
+      this._stack = [];
       this._stack.push(root.name);
     }
 

@@ -4,11 +4,6 @@
 
 module RouteFilters {
 
-  interface IHistory {
-    target: IRouteDataStructure,
-    stack: [IRouteDataStructure];
-  }
-
   export class Route {
 
     private _beforeFilters: Basic.IHashMap<IBeforeFilter> = {};
@@ -24,7 +19,6 @@ module RouteFilters {
     constructor(private _$injector, private _$rootScope, private _$state) {
       // just for debugging
       _$rootScope.preventedRoutes = this._preventedRoutes;
-      _$rootScope.routeFilterHistories = this._resolutionHistories;
     }
 
     public authorize(route, event) {
@@ -42,7 +36,6 @@ module RouteFilters {
               this._destroyAuthorizationProcessFor(route);
             }, (e) => {
               console.warn('not authorized', e);
-
 
               this._createAuthorizationProcessFor(route)
                   .authorize()
@@ -83,11 +76,15 @@ module RouteFilters {
 
 
     private _isAuthorized(route): PromisesAPlus.Thenable<boolean> {
+      console.debug('> _isAuthroized');
       var conditions = Array.prototype.map.call(this._getBeforeFiltersFrom(route), (filter) => {
         return filter.condition();
       });
 
-      return global.Promise.all(conditions);
+      var r = global.Promise.all(conditions);
+      console.debug('< _isAuthroized');
+
+      return r;
     }
 
     private _getBeforeFiltersFrom(route: IRouteDataStructure) {
@@ -99,19 +96,9 @@ module RouteFilters {
       return (route.data || {}).beforeFilters || [];
     }
 
-    private _hasHistory(route) {
-      return this._resolutionHistories.hasOwnProperty(route.name)
-          && this._resolutionHistories[route.name].length() > 1;
-    }
-
     private _isPrevented(route: IRouteDataStructure): boolean {
-      return this._preventedRoutes[route.name];
+      return !!this._preventedRoutes[route.name];
     }
-
-    private _isCurrentlyResolving(name) {
-      return this._currentlyResolving.hasOwnProperty(name);
-    }
-
 
     public beforeFilter(name: string, toProvide: [string, () => any]) {
       var self = this;
@@ -123,7 +110,7 @@ module RouteFilters {
               (event, toState, toParams) => {
 
                 if (this._isPrevented(toState)) {
-                  console.info(`Authorize Prevented for in CB"${toState.name}"`);
+                  console.info(`Refresh prevented in CB for:`, toState.name);
                   return;
                 }
 
@@ -165,21 +152,6 @@ module RouteFilters {
 
       throw new Error(`Route.getBeforeFilterByName:` +
           `A BeforeFilter with the name "${name}" doesn't exist!`);
-    }
-
-
-    public trackHistoryFor(target: IRouteDataStructure, root: IRouteDataStructure) {
-      this._resolutionHistories[target.name] = new RouteHistory(root);
-
-      this._resolutionHistoriesDestroyers[target.name] =
-          this._$rootScope.$on('$stateChangeSuccess', (event, toState) => {
-            this._resolutionHistories[target.name].push(toState);
-          });
-    }
-
-    public destroyHistoryFor(target) {
-      delete this._resolutionHistories[target.name];
-      this._resolutionHistoriesDestroyers[target.name]();
     }
 
     // I think there is a need for AfterFilters as well

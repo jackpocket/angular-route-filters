@@ -28,9 +28,9 @@ module RouteFilters {
 
       return this._beforeFilters[index]
           .condition()
-          .catch((beforeFilterOrError) => {
+          .then(null, (beforeFilterOrError) => {
             if (typeof beforeFilterOrError.resolve === 'function') {
-              return beforeFilterOrError.resolve()
+              return beforeFilterOrError.resolve();
             }
             else {
               // reject any other error!
