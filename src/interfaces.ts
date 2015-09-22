@@ -13,8 +13,8 @@ module RouteFilters {
   }
 
   export interface IBeforeFilter {
-    condition(): boolean|PromisesAPlus.Thenable<any>|any;
-    resolve(): PromisesAPlus.Thenable<void>;
+    evaluateCondition(): boolean|PromisesAPlus.Thenable<any>|any;
+    startResolutionProcess(): void;
     getName(): string;
   }
 
@@ -22,7 +22,7 @@ module RouteFilters {
 
   export interface IBeforeFilterDefinition {
     condition(filterScope: Basic.IHashMap<any>): ConditionReturn;
-    resolve(filterScope: Basic.IHashMap<any>): void;
+    resolution(filterScope: Basic.IHashMap<any>): void;
   }
 
 }

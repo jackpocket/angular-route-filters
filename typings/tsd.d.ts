@@ -4,3 +4,4 @@
 /// <reference path="sinon/sinon.d.ts" />
 /// <reference path="angularjs/angular.d.ts" />
 /// <reference path="promises-a-plus/promises-a-plus.d.ts" />
+/// <reference path="lodash/lodash.d.ts" />

@@ -16,11 +16,12 @@
   ],
   "dependencies": {
     "angular": "~1.4.0",
-    "angular-route": "~1.4.0",
     "angular-loader": "~1.4.0",
     "angular-mocks": "~1.4.0",
+    "angular-route": "~1.4.0",
+    "bootstrap": "~3.3.5",
     "html5-boilerplate": "~5.2.0",
-    "bootstrap": "~3.3.5"
+    "lodash": "~3.10.1"
   },
   "devDependencies": {
     "angular-ui-router": "ui-router#~0.2.15"

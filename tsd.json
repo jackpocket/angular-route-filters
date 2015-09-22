@@ -22,6 +22,9 @@
     },
     "promises-a-plus/promises-a-plus.d.ts": {
       "commit": "f23cd55e319a0f67362ca0dbc4cf3e2ec1339f4e"
+    },
+    "lodash/lodash.d.ts": {
+      "commit": "32ca9954c39f2587da49862b61edc09fbe79e994"
     }
   }
 }
