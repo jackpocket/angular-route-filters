@@ -14,15 +14,15 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/Asana/typescript-starter.git"
+    "url": "https://github.com/GabrielCTroia/angular-route-filters"
   },
   "keywords": [
     "typescript"
   ],
-  "author": "Asana",
+  "author": "Gabriel C. Troia",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/Asana/typescript-starter/issues"
+    "url": "https://github.com/GabrielCTroia/angular-route-filters/issues"
   },
   "homepage": "https://github.com/GabrielCTroia/angular-route-filters",
   "devDependencies": {
