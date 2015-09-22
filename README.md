@@ -51,6 +51,23 @@ app.config(['$stateProvider', function($stateProvider) {
 
 ```
 
+## Features
+
+- simple API and minimal overhead to add route filters
+- works with sync and async conditions
+- works with single or wizard like resolution processes (that means one or multiple states/routes for the resolution process)  
+
+## Current flaws
+
+- the AfterFilters are not implemented yet
+- it only works with ui-router (but going to make it available for angular-route soon)
+- it doesn't work with nested beforeFilters (correctly)
+- you need to specifically call routeFilters.goToIntended() in your implementation (most likely at the controller level) 
+once the resolution process is finished
+(*Note - this is a larger discussion, and a pretty hard problem to solve. See [issue #1](https://github.com/GabrielCTroia/angular-route-filters/issues/1))   
+
+
+
 ## See it in action
 
 Run `npm start` to check the sample
