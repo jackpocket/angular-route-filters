@@ -25,6 +25,29 @@ angular.module('jp.routeFilters', [
         _.map(helper.getStates(), (state: any) => {
           state.resolve = state.resolve || {};
 
+          // If there are any other dependencies to resolve
+          // inject the $$beforeFilters 'service' to their dependencies
+          // in the last position (so it doesn't affect the arguments list)
+          // This will create a chain of dependencies, and it will force
+          // the rest of them to wait until $$beforeFilters is resolved,
+          // and is needed because by default resolve runs all the 'services'
+          // in parallel.
+          // This ensures no extra computations or API calls are created
+          // if the $$beforeFilters are not resolved.
+          if (_.keys(state.resolve).length > 0) {
+            _.map(state.resolve, (dp: any) => {
+              if (_.isArray(dp)) {
+                let fn = dp.pop();
+                dp.push('$$beforeFilters');
+                dp.push(fn);
+              }
+              else if (typeof dp === 'function') {
+                dp.$inject = dp.$inject || [];
+                dp.$inject.push('$$beforeFilters');
+              }
+            });
+          }
+
           let beforeFilterNames = helper.getBeforeFilterNames(state);
 
           if (beforeFilterNames.length > 0) {

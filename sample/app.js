@@ -148,7 +148,30 @@ angular.module('myApp', [
               url        : '/user/home',
               controller : 'HomeUserCtrl',
               templateUrl: './views/home-user.html',
-              resolve    : {},
+              resolve    : {
+                someData: [function () {
+                  console.log('ctrl resolving "someData - this should wait for the $$beforeFitlers"', arguments);
+
+                  return new Promise(function (resolve, reject) {
+                    setTimeout(function () {
+                      resolve({
+                        data: 'just some random data'
+                      });
+                    }, 200)
+                  });
+                }],
+                someOtherData: function () {
+                  console.log('ctrl resolving "someRandomData - this should wait for the $$beforeFitlers"', arguments);
+
+                  return new Promise(function (resolve, reject) {
+                    setTimeout(function () {
+                      resolve({
+                        data: 'just some other random data'
+                      });
+                    }, 200)
+                  });
+                }
+              },
               params     : {
                 asd: true
               },
