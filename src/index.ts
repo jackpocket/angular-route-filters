@@ -9,7 +9,7 @@ angular.module('jp.routeFilters', [
   'ui.router'
 ])
     .service('routeFilters', ['$injector', '$state', routeFilters.Route])
-    .factory('jp.routeFilters.helper', ['$state', ($state) => ({
+    .factory('jp.routeFilters._helper', ['$state', ($state) => ({
       getStates: () => _.filter($state.get(), (state: any) => !state.abstract),
 
       getBeforeFilterNames: (state) => (state.data || {}).beforeFilters || [],
@@ -18,8 +18,8 @@ angular.module('jp.routeFilters', [
   // Set up the Authorization Bindings
     .run([
       '$rootScope',
-      'jp.routeFilters',
-      'jp.routeFilters.helper',
+      'routeFilters',
+      'jp.routeFilters._helper',
       function ($rootScope, route, helper) {
 
         _.map(helper.getStates(), (state: any) => {
@@ -58,5 +58,4 @@ angular.module('jp.routeFilters', [
         // this type of filters are working on $stateChangeEnd
 
       }
-    ])
-;
+    ]);

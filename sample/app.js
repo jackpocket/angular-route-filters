@@ -15,7 +15,7 @@ angular.module('myApp', [
       '$rootScope',
       '$state',
       '$stateParams',
-      'jp.routeFilters',
+      'routeFilters',
       function ($rootScope, $state, $stateParams, route) {
 
         $rootScope.history = [];
@@ -79,7 +79,7 @@ angular.module('myApp', [
       '$scope',
       '$rootScope',
       '$state',
-      'jp.route',
+      'routeFilters',
       function ($scope, $rootScope, $state, route) {
         $scope.login = function () {
           // simulate a real asyn login
@@ -190,7 +190,7 @@ angular.module('myApp', [
             });
       }])
 
-    .run(['jp.route', function (route) {
+    .run(['routeFilters', function (route) {
 
       route.beforeFilter('user', [
         '$rootScope',
