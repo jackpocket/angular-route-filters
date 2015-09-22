@@ -10,7 +10,8 @@
     "!**/*_test.js.map",
     "!build/**/*.js",
     "!coverage/**/*.js",
-    "!node_modules/**/*.js"
+    "!node_modules/**/*.js",
+    "!./angular-route-filters.js"
   ],
   "repository": {
     "type": "git",
@@ -55,8 +56,9 @@
   "scripts": {
     "postinstall": "",
     "prestart": "npm install && npm run prebundle",
-    "prebundle": "npm run compile && rm -rf ./sample/vendor ./sample/build && cd ./sample && ln -s ../app/vendor vendor && ln -s ../build build && cd ..",
+    "prebundle": "npm run compile && rm -rf ./sample/vendor ./sample/build ./index.js ./${npm_package_name}.js && cd ./sample && ln -s ../app/vendor vendor && ln -s ../build build && cd ..",
     "bundle": "dts-generator --name $npm_package_name --main ${npm_package_name}/index --baseDir . --exclude node_modules/dts-generator/node_modules/typescript/bin/lib.es6.d.ts -out ${npm_package_name}.d.ts *.d.ts",
+    "dist": "npm run bundle && cp build/index.js ./${npm_package_name}.js && cp build/index.js ./index.js",
     "clean": "rm -rf build coverage",
     "precompile": "npm run clean",
     "compile": "tsc src/index.ts --out build/index.js",

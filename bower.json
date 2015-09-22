@@ -1,6 +1,5 @@
 {
   "name": "angular-route-filters",
-  "version": "0.0.3",
   "homepage": "https://github.com/GabrielCTroia/angular-route-filters",
   "authors": [
     "gabrielcatalin <catalin.troia@gmail.com>"
@@ -8,15 +7,15 @@
   "description": "A simple API for applying filters to your routes",
   "license": "MIT",
   "ignore": [
-    "**/.*",
     "node_modules",
     "bower_components",
     "app",
     "test",
-    "tests"
+    "tests",
+    "./index.js"
   ],
   "main": [
-    "build/index.js"
+    "./angular-route-filters.js"
   ],
   "dependencies": {
     "angular": "~1.4.0",
