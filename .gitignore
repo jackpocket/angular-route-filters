@@ -34,6 +34,4 @@ build
 #*.js
 #typings
 .idea
-angular-route-filters.d.ts
-angular-route-filters.js
 index.js
