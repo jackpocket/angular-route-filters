@@ -1,7 +1,7 @@
 'use strict';
 
 var oldLogInfo = console.info;
-console.info = function() {
+console.info = function () {
   //oldLogInfo.apply(oldLogInfo, arguments);
   console.trace.apply(console, arguments);
 };
@@ -9,13 +9,14 @@ console.info = function() {
 // Declare app level module which depends on views, and components
 angular.module('myApp', [
   'ui.router',
-  'routeFilters'
+  'jp.routeFilters'
 ])
     .run([
       '$rootScope',
       '$state',
       '$stateParams',
-      function ($rootScope, $state, $stateParams) {
+      'jp.routeFilters',
+      function ($rootScope, $state, $stateParams, route) {
 
         $rootScope.history = [];
 
@@ -33,6 +34,10 @@ angular.module('myApp', [
             $rootScope.history.push(fromState.name);
           }
         });
+
+        $rootScope.getIntended = function () {
+          return route.getIntended();
+        };
 
         $rootScope.user = null;
 
@@ -74,7 +79,8 @@ angular.module('myApp', [
       '$scope',
       '$rootScope',
       '$state',
-      function ($scope, $rootScope, $state) {
+      'jp.route',
+      function ($scope, $rootScope, $state, route) {
         $scope.login = function () {
           // simulate a real asyn login
           setTimeout(function () {
@@ -83,9 +89,31 @@ angular.module('myApp', [
             };
 
             // Note, that is NOT going 'home', but to to the guest user.
-            $state.go('home-guest');
+            route.goToIntendedOr('home-guest');
           }, 100);
         };
+
+
+        $scope.verifyPhone = function () {
+          // simulate a real asyn login
+          setTimeout(function () {
+            $rootScope.user.phoneVerified = true;
+
+            // Note, that is NOT going 'home', but to to the guest user.
+            route.goToIntendedOr('home-guest');
+          }, 100);
+        };
+
+        $scope.verifyAge = function () {
+          // simulate a real asyn login
+          setTimeout(function () {
+            $rootScope.user.ageVerified = true;
+
+            // Note, that is NOT going 'home', but to to the guest user.
+            route.goToIntendedOr('home-guest');
+          }, 100);
+        };
+
         // nothing interesting happening here yet
       }])
     .config([
@@ -115,16 +143,20 @@ angular.module('myApp', [
               url        : '/home/guest',
               controller : 'HomeGuestCtrl',
               templateUrl: './views/home-guest.html',
-              resolve    : {}
             })
             .state('home-user', {
               url        : '/user/home',
               controller : 'HomeUserCtrl',
               templateUrl: './views/home-user.html',
               resolve    : {},
+              params     : {
+                asd: true
+              },
               data       : {
                 beforeFilters: [
-                  'user'
+                  'user',
+                  'user:phoneVerified',
+                  'user:ageVerified'
                 ]
               }
             })
@@ -143,19 +175,31 @@ angular.module('myApp', [
               controller : 'LoginCtrl',
               templateUrl: './views/login-step3.html',
               resolve    : {}
+            })
+            .state('verify-phone', {
+              url        : '/verify-phone',
+              controller : 'LoginCtrl',
+              templateUrl: './views/verify-phone.html',
+              resolve    : {}
+            })
+            .state('verify-age', {
+              url        : '/verify-age',
+              controller : 'LoginCtrl',
+              templateUrl: './views/verify-age.html',
+              resolve    : {}
             });
       }])
 
-    .run(['route', function (route) {
+    .run(['jp.route', function (route) {
 
       route.beforeFilter('user', [
         '$rootScope',
         '$state',
         function ($rootScope, $state) {
           return {
-            condition: function () {
+            condition : function () {
               return new Promise(function (resolve, reject) {
-                setTimeout(function() {
+                setTimeout(function () {
                   if (!!($rootScope.user && $rootScope.user.hasOwnProperty('name'))) {
                     resolve()
                   } else {
@@ -164,26 +208,48 @@ angular.module('myApp', [
                 }, 1000);
               })
             },
-            resolve  : function () {
-              $state.go('login-step1');
+            resolution: function () {
+              console.log('resolving user in implementation');
+              if (confirm('User Fitler failed. Continue?')) {
+                $state.go('login-step1');
+              }
             }
           }
         }
       ]);
 
-      //route.beforeFilter('user:verified', [
-      //  '$rootScope',
-      //  '$state',
-      //  function ($rootScope, $state) {
-      //    return {
-      //      condition: function () {
-      //        return !!($rootScope.user && $rootScope.user.hasOwnProperty('name'));
-      //      },
-      //      resolve  : function () {
-      //        $state.go('login');
-      //      }
-      //    }
-      //  }
-      //]);
+      route.beforeFilter('user:phoneVerified', [
+        '$rootScope',
+        '$state',
+        function ($rootScope, $state) {
+          return {
+            condition : function () {
+              return !!($rootScope.user && $rootScope.user.phoneVerified === true);
+            },
+            resolution: function () {
+              //if (confirm('User:phoneVerified Filter failed. Continue?')) {
+              $state.go('verify-phone');
+              //}
+            }
+          }
+        }
+      ]);
+
+      route.beforeFilter('user:ageVerified', [
+        '$rootScope',
+        '$state',
+        function ($rootScope, $state) {
+          return {
+            condition : function () {
+              return !!($rootScope.user && $rootScope.user.ageVerified === true);
+            },
+            resolution: function () {
+              //if (confirm('User:ageVerified Filter failed. Continue?')) {
+              $state.go('verify-age');
+              //}
+            }
+          }
+        }
+      ]);
 
     }]);
