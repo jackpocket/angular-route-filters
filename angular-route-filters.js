@@ -174,31 +174,31 @@ angular.module('jp.routeFilters', [
     'jp.routeFilters._helper',
     function ($rootScope, route, helper) {
         _.map(helper.getStates(), function (state) {
-            state.resolve = state.resolve || {};
-            // If there are any other dependencies to resolve
-            // inject the $$beforeFilters 'service' to their dependencies
-            // in the last position (so it doesn't affect the arguments list)
-            // This will create a chain of dependencies, and it will force
-            // the rest of them to wait until $$beforeFilters is resolved,
-            // and is needed because by default resolve runs all the 'services'
-            // in parallel.
-            // This ensures no extra computations or API calls are created
-            // if the $$beforeFilters are not resolved.
-            if (_.keys(state.resolve).length > 0) {
-                _.map(state.resolve, function (dp) {
-                    if (_.isArray(dp)) {
-                        var fn = dp.pop();
-                        dp.push('$$beforeFilters');
-                        dp.push(fn);
-                    }
-                    else if (typeof dp === 'function') {
-                        dp.$inject = dp.$inject || [];
-                        dp.$inject.push('$$beforeFilters');
-                    }
-                });
-            }
             var beforeFilterNames = helper.getBeforeFilterNames(state);
             if (beforeFilterNames.length > 0) {
+                state.resolve = state.resolve || {};
+                // If there are any other dependencies to resolve
+                // inject the $$beforeFilters 'service' to their dependencies
+                // in the last position (so it doesn't affect the arguments list)
+                // This will create a chain of dependencies, and it will force
+                // the rest of them to wait until $$beforeFilters is resolved,
+                // and is needed because by default resolve runs all the 'services'
+                // in parallel.
+                // This ensures no extra computations or API calls are created
+                // if the $$beforeFilters are not resolved.
+                if (_.keys(state.resolve).length > 0) {
+                    _.map(state.resolve, function (dp) {
+                        if (_.isArray(dp)) {
+                            var fn = dp.pop();
+                            dp.push('$$beforeFilters');
+                            dp.push(fn);
+                        }
+                        else if (typeof dp === 'function') {
+                            dp.$inject = dp.$inject || [];
+                            dp.$inject.push('$$beforeFilters');
+                        }
+                    });
+                }
                 state.resolve['$$beforeFilters'] = [
                     '$stateParams',
                     function ($stateParams) {
