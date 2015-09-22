@@ -74,7 +74,6 @@
     "serve": "http-server ./sample -a localhost -p 7777 -c-1",
     "test": "karma start karma.conf.js",
     "test-single-run": "karma start karma.conf.js  --single-run",
-    "start": "parallelshell 'npm run serve' 'npm run build:watch'",
-    "publish:bower": ""
+    "start": "parallelshell 'npm run serve' 'npm run build:watch'"
   }
 }
