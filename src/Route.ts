@@ -30,13 +30,9 @@ module RouteFilters {
         return global.Promise.resolve();
       }
 
-      console.info('Route: authorizing', beforeFilters[0].getName());
-
       return beforeFilters[0]
           .evaluateCondition()
-          .then(() => {
-            console.info('Route: authorized', beforeFilters[0].getName());
-          }, (beforeFilterOrError) => {
+          .then(null, (beforeFilterOrError) => {
             if (typeof beforeFilterOrError.startResolutionProcess ===
                 'function') {
               beforeFilterOrError.startResolutionProcess();
@@ -76,13 +72,11 @@ module RouteFilters {
 
     public goToIntendedOr(routeName?: string, routeParams?: {any}): void {
       if (this._intendedRoute) {
-        console.info('Route:goToIntended() succesfully', this._intendedRoute.name);
         this._$state.transitionTo(
             this._intendedRoute.name,
             this._intendedRoute.params);
       }
       else if (typeof routeName == 'string') {
-        console.info('Route:goToIntended(): no intended. Going to default instead', routeName);
         this._$state.transitionTo(routeName, routeParams);
       }
 

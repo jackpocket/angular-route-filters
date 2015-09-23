@@ -10,7 +10,8 @@ angular.module('jp.routeFilters', [
 ])
     .service('routeFilters', ['$injector', '$state', routeFilters.Route])
     .factory('jp.routeFilters._helper', ['$state', ($state) => ({
-      getStates: () => _.filter($state.get(), (state: any) => !state.abstract),
+      getStates: () => Array.prototype.filter.call($state.get(),
+          (state: any) => !state.abstract),
 
       getBeforeFilterNames: (state) => (state.data || {}).beforeFilters || [],
     })])
@@ -22,7 +23,7 @@ angular.module('jp.routeFilters', [
       'jp.routeFilters._helper',
       function ($rootScope, route, helper) {
 
-        _.map(helper.getStates(), (state: any) => {
+        Array.prototype.map.call(helper.getStates(), (state: any) => {
           let beforeFilterNames = helper.getBeforeFilterNames(state);
 
           if (beforeFilterNames.length > 0) {
@@ -37,27 +38,24 @@ angular.module('jp.routeFilters', [
             // in parallel.
             // This ensures no extra computations or API calls are created
             // if the $$beforeFilters are not resolved.
-            if (_.keys(state.resolve).length > 0) {
-              _.map(state.resolve, (dp: any) => {
-                if (_.isArray(dp)) {
-                  let fn = dp.pop();
-                  dp.push('$$beforeFilters');
-                  dp.push(fn);
-                }
-                else if (typeof dp === 'function') {
-                  dp.$inject = dp.$inject || [];
-                  dp.$inject.push('$$beforeFilters');
-                }
-              });
-            }
+            Array.prototype.map.call(state.resolve, (dp: any) => {
+              if (Array.isArray(dp)) {
+                let fn = dp.pop();
+                dp.push('$$beforeFilters');
+                dp.push(fn);
+              }
+              else if (typeof dp === 'function') {
+                dp.$inject = dp.$inject || [];
+                dp.$inject.push('$$beforeFilters');
+              }
+            });
 
 
             state.resolve['$$beforeFilters'] = [
               '$stateParams',
               ($stateParams) => {
-                let beforeFilters = _.map(beforeFilterNames, (bfName) => {
-                  return route.getBeforeFilterByName(bfName);
-                });
+                let beforeFilters = Array.prototype.map.call(beforeFilterNames,
+                    (bfName) => route.getBeforeFilterByName(bfName));
 
                 return route
                     .authorize(beforeFilters)
