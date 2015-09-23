@@ -181,7 +181,8 @@ angular.module('jp.routeFilters', [
                 // in parallel.
                 // This ensures no extra computations or API calls are created
                 // if the $$beforeFilters are not resolved.
-                Array.prototype.map.call(state.resolve, function (dp) {
+                Object.keys(state.resolve).map(function (service) {
+                    var dp = state.resolve[service];
                     if (Array.isArray(dp)) {
                         var fn = dp.pop();
                         dp.push('$$beforeFilters');
