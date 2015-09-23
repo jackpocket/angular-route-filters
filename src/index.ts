@@ -27,6 +27,7 @@ angular.module('jp.routeFilters', [
           let beforeFilterNames = helper.getBeforeFilterNames(state);
 
           if (beforeFilterNames.length > 0) {
+
             state.resolve = state.resolve || {};
 
             // If there are any other dependencies to resolve
@@ -38,7 +39,9 @@ angular.module('jp.routeFilters', [
             // in parallel.
             // This ensures no extra computations or API calls are created
             // if the $$beforeFilters are not resolved.
-            Array.prototype.map.call(state.resolve, (dp: any) => {
+
+            Object.keys(state.resolve).map((service: any) => {
+              let dp = state.resolve[service];
               if (Array.isArray(dp)) {
                 let fn = dp.pop();
                 dp.push('$$beforeFilters');
@@ -49,7 +52,6 @@ angular.module('jp.routeFilters', [
                 dp.$inject.push('$$beforeFilters');
               }
             });
-
 
             state.resolve['$$beforeFilters'] = [
               '$stateParams',
