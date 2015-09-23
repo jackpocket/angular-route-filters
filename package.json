@@ -18,7 +18,11 @@
     "url": "https://github.com/GabrielCTroia/angular-route-filters"
   },
   "keywords": [
-    "typescript"
+    "angular",
+    "route",
+    "filters",
+    "async",
+    "ui-router"
   ],
   "author": "Gabriel C. Troia",
   "license": "MIT",
@@ -48,7 +52,7 @@
     "watch": "^0.16.0"
   },
   "typescript": {
-    "definition": "typescript-starter.d.ts"
+    "definition": "angular-route-filters.d.ts"
   },
   "dependencies": {
     "angular": "^1.3.16"

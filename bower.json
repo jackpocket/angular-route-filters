@@ -4,6 +4,13 @@
   "authors": [
     "gabrielcatalin <catalin.troia@gmail.com>"
   ],
+  "keywords": [
+    "angular",
+    "route",
+    "filters",
+    "async",
+    "ui-router"
+  ],
   "description": "A simple API for applying filters to your routes",
   "license": "MIT",
   "ignore": [
