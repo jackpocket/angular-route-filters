@@ -1,4 +1,5 @@
 /// <reference path="./vendor.d.ts" />
+/// <reference path="./interfaces.ts" />
 'use strict';
 
 module RouteFilters {

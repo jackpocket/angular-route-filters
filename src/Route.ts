@@ -1,4 +1,6 @@
 /// <reference path="./basic.d.ts" />
+/// <reference path="./BeforeFilter.ts" />
+/// <reference path="./interfaces.ts" />
 'use strict';
 
 
@@ -37,7 +39,8 @@ module RouteFilters {
                 'function') {
               beforeFilterOrError.startResolutionProcess();
 
-              throw 'Resolving $$beforeFilter:' + beforeFilterOrError.getName();
+              throw 'Resolving $$beforeFilter:' +
+              beforeFilterOrError.getName();
             }
             else {
               // reject any other error!
@@ -62,7 +65,12 @@ module RouteFilters {
           `A BeforeFilter with the name "${name}" doesn't exist!`);
     }
 
-
+    /**
+     * Set the intended state.
+     *
+     * @param routeName
+     * @param routeParams
+     */
     public setIntended(routeName: string, routeParams): void {
       this._intendedRoute = {
         name:   routeName,
@@ -70,6 +78,14 @@ module RouteFilters {
       };
     }
 
+    /**
+     * TODO: Add tests
+     * Go to the Intended State or to the given one if no intended exists
+     *
+     *
+     * @param routeName
+     * @param routeParams
+     */
     public goToIntendedOr(routeName?: string, routeParams?: {any}): void {
       if (this._intendedRoute) {
         this._$state.transitionTo(
@@ -83,10 +99,18 @@ module RouteFilters {
       this.flushIntended();
     }
 
+    /**
+     * Flush the current Intended State
+     */
     public flushIntended() {
       this._intendedRoute = null;
     }
 
+    /**
+     * Get the current Intended State
+     *
+     * @returns {{name: string, params: any}}
+     */
     public getIntended() {
       return this._intendedRoute;
     }
