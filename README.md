@@ -51,6 +51,10 @@ app.config(['$stateProvider', function($stateProvider) {
 
 ```
 
+## Dependencies
+
+- es6 Promises 
+
 ## Features
 
 - simple API and minimal overhead to add route filters

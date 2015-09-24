@@ -1,6 +1,9 @@
+/// <reference path="./vendor.d.ts" />
 /// <reference path="./BeforeFilter" />
 /// <reference path="./Route" />
 /// <reference path="./interfaces" />
+
+
 
 var global: any = window;
 var routeFilters = RouteFilters;

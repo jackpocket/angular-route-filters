@@ -25,6 +25,9 @@
     },
     "lodash/lodash.d.ts": {
       "commit": "32ca9954c39f2587da49862b61edc09fbe79e994"
+    },
+    "es6-promise/es6-promise.d.ts": {
+      "commit": "32ca9954c39f2587da49862b61edc09fbe79e994"
     }
   }
 }

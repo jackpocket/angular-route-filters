@@ -13,12 +13,12 @@ module RouteFilters {
   }
 
   export interface IBeforeFilter {
-    evaluateCondition(): boolean|PromisesAPlus.Thenable<any>|any;
+    evaluateCondition(): boolean|Thenable<any>|any;
     startResolutionProcess(): void;
     getName(): string;
   }
 
-  export type ConditionReturn = boolean|PromisesAPlus.Thenable<boolean>;
+  export type ConditionReturn = boolean|Thenable<boolean>;
 
   export interface IBeforeFilterDefinition {
     condition(filterScope: Basic.IHashMap<any>): ConditionReturn;

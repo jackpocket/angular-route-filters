@@ -45,8 +45,8 @@ module RouteFilters {
      *
      * @returns {any}
      */
-    public evaluateCondition(): PromisesAPlus.Thenable<void> {
-      let conditionOutput: boolean|PromisesAPlus.Thenable<boolean>
+    public evaluateCondition(): Thenable<void> {
+      let conditionOutput: boolean|Thenable<boolean>
           = this._definition.condition(this._filterScope);
 
       if (typeof conditionOutput === 'boolean') {
