@@ -1,4 +1,8 @@
 /// <reference path="./vendor.d.ts" />
+/// <reference path="./basic.d.ts" />
+'use strict';
+/// <reference path="./vendor.d.ts" />
+/// <reference path="./interfaces.ts" />
 'use strict';
 var RouteFilters;
 (function (RouteFilters) {
@@ -71,6 +75,8 @@ var RouteFilters;
     RouteFilters.BeforeFilter = BeforeFilter;
 })(RouteFilters || (RouteFilters = {}));
 /// <reference path="./basic.d.ts" />
+/// <reference path="./BeforeFilter.ts" />
+/// <reference path="./interfaces.ts" />
 'use strict';
 var RouteFilters;
 (function (RouteFilters) {
@@ -103,7 +109,8 @@ var RouteFilters;
                 if (typeof beforeFilterOrError.startResolutionProcess ===
                     'function') {
                     beforeFilterOrError.startResolutionProcess();
-                    throw 'Resolving $$beforeFilter:' + beforeFilterOrError.getName();
+                    throw 'Resolving $$beforeFilter:' +
+                        beforeFilterOrError.getName();
                 }
                 else {
                     // reject any other error!
@@ -122,12 +129,26 @@ var RouteFilters;
             throw new Error("Route.getBeforeFilterByName:" +
                 ("A BeforeFilter with the name \"" + name + "\" doesn't exist!"));
         };
+        /**
+         * Set the intended state.
+         *
+         * @param routeName
+         * @param routeParams
+         */
         Route.prototype.setIntended = function (routeName, routeParams) {
             this._intendedRoute = {
                 name: routeName,
                 params: routeParams
             };
         };
+        /**
+         * TODO: Add tests
+         * Go to the Intended State or to the given one if no intended exists
+         *
+         *
+         * @param routeName
+         * @param routeParams
+         */
         Route.prototype.goToIntendedOr = function (routeName, routeParams) {
             if (this._intendedRoute) {
                 this._$state.transitionTo(this._intendedRoute.name, this._intendedRoute.params);
@@ -137,9 +158,17 @@ var RouteFilters;
             }
             this.flushIntended();
         };
+        /**
+         * Flush the current Intended State
+         */
         Route.prototype.flushIntended = function () {
             this._intendedRoute = null;
         };
+        /**
+         * Get the current Intended State
+         *
+         * @returns {{name: string, params: any}}
+         */
         Route.prototype.getIntended = function () {
             return this._intendedRoute;
         };
@@ -148,8 +177,6 @@ var RouteFilters;
     RouteFilters.Route = Route;
 })(RouteFilters || (RouteFilters = {}));
 /// <reference path="./vendor.d.ts" />
-/// <reference path="./basic.d.ts" />
-'use strict';
 /// <reference path="./BeforeFilter" />
 /// <reference path="./Route" />
 /// <reference path="./interfaces" />
