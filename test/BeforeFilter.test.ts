@@ -1,5 +1,4 @@
 /// <reference path="../src/BeforeFilter" />
-/// <reference path="../src/interfaces" />
 'use strict';
 
 var global: any = window;

@@ -18,6 +18,9 @@ module.exports = function (config) {
       'node_modules/sinon/pkg/sinon.js',
       'node_modules/jasmine-sinon/lib/jasmine-sinon.js',
       'app/vendor/es6-promise/promise.js',
+      'app/vendor/angular/angular.js',
+      'app/vendor/angular-ui-router/release/angular-ui-router.js',
+      'app/vendor/angular-mocks/angular-mocks.js',
       'test/**/*.ts'
     ],
 
@@ -45,7 +48,8 @@ module.exports = function (config) {
       // extra typing definitions to pass to the compiler (globs allowed)
       typings      : [
         'typings/jasmine/jasmine.d.ts',
-        'typings/sinon/sinon.d.ts'
+        'typings/sinon/sinon.d.ts',
+        'typings/angularjs/angular-mocks.d.ts'
       ],
       // transforming the filenames
       transformPath: function (path) {
