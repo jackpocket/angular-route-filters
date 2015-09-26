@@ -87,11 +87,15 @@ var RouteFilters;
             this._beforeFilters = {};
         }
         /**
-         * Apply the Given before filters
-         * If any of the filter condition fails, the resolution for the given
-         *  beforeFilter will be called, and once resolved the method will
-         * recursively be called again with the rest of the unevaluated
-         * beforeFilters.
+         * Iterates over the given beforeFilters, and evaluates their condition,
+         *  in the given order. If one condition evaluation fails, the
+         *  Authorization Process interrupts and the Resolution method for that
+         *  particular `beforeFilter` is invoked - that is, the Resolution Process
+         *  has started.
+         *
+         * The Resolution Process should simply offer an interface for the User to
+         *  be able to authorize for the state he is trying to see, such as a
+         *  Login or Registration Form, a checkbox selection, a confirm dialog, etc.
          *
          * @param beforeFilters
          * @returns {any}
@@ -119,8 +123,16 @@ var RouteFilters;
             })
                 .then(function () { return _this.authorize(beforeFilters.slice(1)); });
         };
-        Route.prototype.beforeFilter = function (name, toProvide) {
-            this._beforeFilters[name] = new RouteFilters.BeforeFilter(name, this._$injector.invoke(toProvide));
+        /**
+         * Register a BeforeFilter with a given unique 'name'
+         *  and a definition object.
+         *
+         * @param name
+         * @param definition
+         */
+        Route.prototype.beforeFilter = function (name, definition) {
+            this._beforeFilters[name] =
+                new RouteFilters.BeforeFilter(name, this._$injector.invoke(definition));
         };
         Route.prototype.getBeforeFilterByName = function (name) {
             if (this._beforeFilters[name]) {
@@ -140,6 +152,43 @@ var RouteFilters;
                 name: routeName,
                 params: routeParams
             };
+        };
+        /**
+         * To be called when the current resolution flow needs to finish – that is
+         *  of course, when the beforeFilter's condition passes.
+         *
+         * It simply redirects to the original state/route and restarts the
+         *  state's authorization process.
+         *
+         * If indeed the current beforeFilter under resolution passed that means the
+         *  state is authorized.
+         *
+         * If there are multiple beforeFilters, the authorization process will
+         *  continue with the next ones, and in case one passes, it will
+         *  automatically start the resolution process for it.
+         *
+         */
+        Route.prototype.finishResolution = function () {
+            if (this._intendedRoute) {
+                this._$state.transitionTo(this._intendedRoute.name, this._intendedRoute.params);
+            }
+            else {
+                console.warn('RouteFilters.resolutionFinished() - ' +
+                    'Trying to finish a resolution which never started! ' +
+                    'Make sure you are calling RouteFilters.resolutionFinished() only' +
+                    'a resolution process has started!');
+            }
+            this.flushIntended();
+        };
+        /**
+         * Returns TRUE if in the middle of a resolution process.
+         *
+         * To be called when state you need to finish a reoslutino process.
+         *
+         * @returns {boolean}
+         */
+        Route.prototype.hasResolutionStarted = function () {
+            return !!this.getIntended();
         };
         /**
          * TODO: Add tests
