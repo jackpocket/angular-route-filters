@@ -80,6 +80,6 @@
     "pretest": "npm install",
     "test": "karma start karma.conf.js",
     "test-single-run": "karma start karma.conf.js  --single-run",
-    "start": "parallelshell 'npm run serve' 'npm run build:watch'"
+    "start": "parallelshell 'npm run serve' 'npm run build:watch' 'npm test'"
   }
 }
