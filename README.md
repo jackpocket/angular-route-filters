@@ -1,7 +1,51 @@
 # Angular Route Filters
 
-A simple API to attach route filters (before and after filters) to routes
-in angular projects.
+A simple API to attach route filters (before and after) to routes in angular 
+projects.
+
+## Features
+
+- minimal overhead to add route filters
+- works with sync and async conditions
+- works with single or wizard like resolution flows 
+(that means once the condition fails, one or a sequence of states can attempt to
+ resolve the condition)
+
+
+## How does it work?
+
+A Route Filter must be registered with a __unique name__ and a __definition__ at 
+application.run() time.
+
+When defining a state, which needs a form of authorization to be viewed, you can
+add a __beforeFilters__ Array to the state's __data__ property. 
+The __beforeFilters__ take an array of names, which must be valid beforeFilter names. 
+The order of the names also matters, because it represents the actual order 
+in which the beforeFilters will be later evaluated.
+ 
+ ```
+ .state('home-user', {
+    ...
+    data: {
+      beforeFilters: ['beforeFilterName1', 'beforeFilterName2', ...]
+    }
+```
+
+When the app starts, all the registered states that have at least one 
+beforeFilter declared, will get a new dependency called $$beforeFilters in 
+their resolve object. 
+
+*Note - In order to make sure the $$beforeFilters gets executed first, and that no
+other dependency or data is loaded for an unauthorized state, the $$beforeFilters 
+dependency gets also injected in all the other dependencies to resolve. 
+It will always get injected in the last position in the arguments list, and thus,
+it should most of the time go unnoticed, but if, for some reason you depend on
+the __arguments__ property of the function, make sure you slice off the last argument.
+
+The State's resolve will take care of them from here on. If $$beforeFilters returns a
+resolving promise, everything goes on as usual – that means the stet is authorized -,
+otherwise, the beforeFilter's resolution method will be invoked, and the 
+Resolution Process will begin.
 
 ## How to use it?
 
@@ -60,10 +104,11 @@ app.config(['$stateProvider', function($stateProvider) {
 ```
 
 **3. Lastly, we need to let the `routeFilters` service know that the resolution 
-process has finished, and that it should try to authorize the state again. **
+process has finished**
 
 ```
-app.controller('LoginCtrl', ['routeFilters', 'authService', function(routeFilters, authService) {
+app.controller('LoginCtrl', ['routeFilters', 'authService', 
+    function(routeFilters, authService) {
     
     authService.login(credentials);
     
@@ -79,14 +124,7 @@ resolution flow again.
 
 ## API
 
-The RouteFilters Service iterates over any state's beforeFilters, and evaluates 
-their condition, in the given order. If one condition evaluation fails, the 
-Authorization Process interrupts and the Resolution method for that particular 
-`beforeFilter` is invoked - that is, the Resolution Process starts.
-     
-The Resolution Process should simply offer an interface for the User to be able 
-to authorize for the state he is trying to see, such as a Login or 
-Registration Form, a checkbox selection, a confirm dialog, etc.
+'routeFilters'
 
 ### beforeFilter
 ---
@@ -94,6 +132,10 @@ Registration Form, a checkbox selection, a confirm dialog, etc.
     beforeFilter(name: string, definition: BeforeFilterDefinition): void
     
 Registers a BeforeFilter with a given unique 'name' and a definition object.
+
+The definition object consts of 2 methods: 
+- condition() which must return a boolean or a promise and
+- resolution() which is invoked when the condition fails.  
 
      
 ### finishResolution
@@ -125,13 +167,7 @@ Returns TRUE if in the middle of a resolution process.
 
 ## Dependencies
 
-- es6 Promises 
-
-## Features
-
-- simple API and minimal overhead to add route filters
-- works with sync and async conditions
-- works with single or wizard like resolution processes (that means one or multiple states/routes for the resolution process)  
+- es6 Promises   
 
 ## Current flaws
 
