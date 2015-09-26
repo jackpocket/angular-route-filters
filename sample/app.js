@@ -80,7 +80,7 @@ angular.module('myApp', [
       '$rootScope',
       '$state',
       'routeFilters',
-      function ($scope, $rootScope, $state, route) {
+      function ($scope, $rootScope, $state, routeFilters) {
         $scope.login = function () {
           // simulate a real asyn login
           setTimeout(function () {
@@ -88,8 +88,7 @@ angular.module('myApp', [
               name: 'Gabriel Troia'
             };
 
-            // Note, that is NOT going 'home', but to to the guest user.
-            route.goToIntendedOr('home-guest');
+            routeFilters.finishResolution();
           }, 100);
         };
 
@@ -99,8 +98,7 @@ angular.module('myApp', [
           setTimeout(function () {
             $rootScope.user.phoneVerified = true;
 
-            // Note, that is NOT going 'home', but to to the guest user.
-            route.goToIntendedOr('home-guest');
+            routeFilters.finishResolution();
           }, 100);
         };
 
@@ -109,8 +107,7 @@ angular.module('myApp', [
           setTimeout(function () {
             $rootScope.user.ageVerified = true;
 
-            // Note, that is NOT going 'home', but to to the guest user.
-            route.goToIntendedOr('home-guest');
+            routeFilters.finishResolution();
           }, 100);
         };
 
@@ -149,7 +146,7 @@ angular.module('myApp', [
               controller : 'HomeUserCtrl',
               templateUrl: './views/home-user.html',
               resolve    : {
-                someData: [function () {
+                someData     : [function () {
                   console.log('ctrl resolving "someData - this should wait for the $$beforeFitlers"', arguments);
 
                   return new Promise(function (resolve, reject) {
@@ -233,7 +230,7 @@ angular.module('myApp', [
             },
             resolution: function () {
               console.log('resolving user in implementation');
-              if (confirm('User Fitler failed. Continue?')) {
+              if (confirm('User not logged in. Log in?')) {
                 $state.go('login-step1');
               }
             }
@@ -250,9 +247,9 @@ angular.module('myApp', [
               return !!($rootScope.user && $rootScope.user.phoneVerified === true);
             },
             resolution: function () {
-              //if (confirm('User:phoneVerified Filter failed. Continue?')) {
-              $state.go('verify-phone');
-              //}
+              if (confirm('User not phone verified. Phone Verify?')) {
+                $state.go('verify-phone');
+              }
             }
           }
         }
@@ -267,9 +264,9 @@ angular.module('myApp', [
               return !!($rootScope.user && $rootScope.user.ageVerified === true);
             },
             resolution: function () {
-              //if (confirm('User:ageVerified Filter failed. Continue?')) {
-              $state.go('verify-age');
-              //}
+              if (confirm('User not age verified. Verify?')) {
+                $state.go('verify-age');
+              }
             }
           }
         }
