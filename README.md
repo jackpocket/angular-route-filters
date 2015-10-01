@@ -32,17 +32,17 @@ the beforeFilters will be later evaluated, so take that in account.
 ```
 
 When the app starts, all the registered states that have at least one
-beforeFilter declared, will get a new dependency called $$beforeFilters injected
+beforeFilter declared, will get a new dependency called `$$beforeFilters` injected
 in their resolve object.
 
-\**Note - In order to make sure the $$beforeFilters gets executed first, and that no
-other dependency or data is loaded for an unauthorized state, the $$beforeFilters
+\**Note - In order to make sure the `$$beforeFilters` gets executed first, and that no
+other dependency or data is loaded for an unauthorized state, the `$$beforeFilters`
 dependency gets also injected in all the other dependencies to resolve.
 It will always get injected in the last position in the arguments list, and thus,
 it should most of the time go unnoticed, but if, for some reason you depend on
 the __arguments__ property of the function, make sure you slice off the last argument.
 
-The State's resolve will take care of them from here on. If $$beforeFilters returns a
+The State's resolve will take care of them from here on. If `$$beforeFilters` returns a
 resolving promise, everything goes on as usual – that means the state is authorized -,
 otherwise, the beforeFilter's resolution method will be invoked, and the
 __Resolution Process__ will begin.*
@@ -178,7 +178,8 @@ Returns TRUE if in the middle of a resolution process.
 - it doesn't work with nested beforeFilters (correctly)
 - you need to specifically call routeFilters.goToIntended() in your implementation (most likely at the controller level)
 once the resolution process is finished
-(\**Note - this is a larger discussion, and a pretty hard problem to solve. See [issue #1](https://github.com/GabrielCTroia/angular-route-filters/issues/1))*   
+(\**Note - this is a larger discussion, and a pretty hard problem to solve.
+  See [issue #1](https://github.com/GabrielCTroia/angular-route-filters/issues/1))*   
 
 
 
